@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT DEFAULT 'MEMBER',
     password_hash TEXT DEFAULT NULL,
     max_loans INTEGER DEFAULT 5 CHECK (max_loans > 0),
+    is_active INTEGER DEFAULT 1,
     member_since TEXT NOT NULL
 );
 """

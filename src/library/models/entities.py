@@ -85,6 +85,7 @@ class User:
     role: str = "MEMBER"
     password_hash: str | None = None
     max_loans: int = 5
+    is_active: bool = True
     id: int | None = None
     member_since: str = field(
         default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -108,6 +109,7 @@ class User:
             "role": self.role,
             "password_hash": self.password_hash,
             "max_loans": self.max_loans,
+            "is_active": 1 if self.is_active else 0,
             "member_since": self.member_since,
         }
 
@@ -122,10 +124,12 @@ class User:
             role=data.get("role", "MEMBER"),
             password_hash=data.get("password_hash"),
             max_loans=data.get("max_loans", 5),
+            is_active=bool(data.get("is_active", 1)),
             member_since=data.get(
                 "member_since", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
             ),
         )
+
 
 
 @dataclass
