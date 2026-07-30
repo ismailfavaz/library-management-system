@@ -65,14 +65,26 @@ class UserRepository:
             row = cursor.fetchone()
             return User.from_dict(dict(row)) if row else None
 
-    def get_all(self) -> list[User]:
-        """Retrieves all registered users in alphabetical order by name."""
-        sql = "SELECT * FROM users ORDER BY name ASC;"
+    def get_all(self, limit: int | None = None, offset: int = 0) -> list[User]:
+        """Retrieves registered users with optional limit/offset pagination.
+
+        Args:
+            limit: Maximum number of records to return.
+            offset: Number of records to skip.
+        """
+        sql = "SELECT * FROM users ORDER BY name ASC"
+        params: list[int] = []
+        if limit is not None:
+            sql += " LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
+        sql += ";"
+
         with self.db_manager.session() as conn:
             cursor = conn.cursor()
-            cursor.execute(sql)
+            cursor.execute(sql, params)
             rows = cursor.fetchall()
             return [User.from_dict(dict(r)) for r in rows]
+
 
     def update(self, user: User) -> bool:
         """Updates user details.

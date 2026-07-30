@@ -65,14 +65,26 @@ class BookRepository:
             row = cursor.fetchone()
             return Book.from_dict(dict(row)) if row else None
 
-    def get_all(self) -> list[Book]:
-        """Retrieves all books stored in the library database."""
-        sql = "SELECT * FROM books ORDER BY title ASC;"
+    def get_all(self, limit: int | None = None, offset: int = 0) -> list[Book]:
+        """Retrieves stored books in the library database with optional pagination.
+
+        Args:
+            limit: Maximum number of records to return.
+            offset: Number of records to skip.
+        """
+        sql = "SELECT * FROM books ORDER BY title ASC"
+        params: list[int] = []
+        if limit is not None:
+            sql += " LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
+        sql += ";"
+
         with self.db_manager.session() as conn:
             cursor = conn.cursor()
-            cursor.execute(sql)
+            cursor.execute(sql, params)
             rows = cursor.fetchall()
             return [Book.from_dict(dict(r)) for r in rows]
+
 
     def update(self, book: Book) -> bool:
         """Updates an existing book record.
