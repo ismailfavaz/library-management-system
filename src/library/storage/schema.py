@@ -49,6 +49,18 @@ CREATE TABLE IF NOT EXISTS loans (
 );
 """
 
+CREATE_RESERVATIONS_TABLE = """
+CREATE TABLE IF NOT EXISTS reservations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    book_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'PENDING',
+    reserved_at TEXT NOT NULL,
+    FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+"""
+
 CREATE_INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_books_isbn ON books(isbn);",
     "CREATE INDEX IF NOT EXISTS idx_books_title ON books(title);",
@@ -56,6 +68,7 @@ CREATE_INDEXES = [
     "CREATE INDEX IF NOT EXISTS idx_loans_user_id ON loans(user_id);",
     "CREATE INDEX IF NOT EXISTS idx_loans_book_id ON loans(book_id);",
     "CREATE INDEX IF NOT EXISTS idx_loans_active ON loans(user_id, return_date);",
+    "CREATE INDEX IF NOT EXISTS idx_reservations_queue ON reservations(book_id, status);",
 ]
 
 
@@ -71,6 +84,7 @@ def initialize_database(db_manager: DatabaseManager) -> None:
         cursor.execute(CREATE_BOOKS_TABLE)
         cursor.execute(CREATE_USERS_TABLE)
         cursor.execute(CREATE_LOANS_TABLE)
+        cursor.execute(CREATE_RESERVATIONS_TABLE)
 
         for index_sql in CREATE_INDEXES:
             cursor.execute(index_sql)
