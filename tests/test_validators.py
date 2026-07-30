@@ -9,8 +9,10 @@ from src.library.utils.validators import (
     validate_email,
     validate_isbn,
     validate_non_empty_string,
+    validate_phone_number,
     validate_positive_int,
 )
+
 
 
 def test_validate_isbn_valid_cases() -> None:
@@ -75,3 +77,16 @@ def test_validate_non_empty_string() -> None:
 
     with pytest.raises(ValidationError):
         validate_non_empty_string("   ", "Title")
+
+
+def test_validate_phone_number() -> None:
+    """Verify phone number validation and normalization."""
+    assert validate_phone_number("+1 (555) 019-2834") == "+15550192834"
+    assert validate_phone_number("123-456-7890") == "1234567890"
+
+    with pytest.raises(ValidationError):
+        validate_phone_number("1234")  # Too short
+
+    with pytest.raises(ValidationError):
+        validate_phone_number("invalid-phone-abc")
+

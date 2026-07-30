@@ -10,8 +10,10 @@ from src.library.utils.validators import (
     validate_email,
     validate_isbn,
     validate_non_empty_string,
+    validate_phone_number,
     validate_positive_int,
 )
+
 
 
 @dataclass
@@ -92,7 +94,7 @@ class User:
         """Validate user parameters upon instantiation."""
         self.name = validate_non_empty_string(self.name, "Name")
         self.email = validate_email(self.email)
-        self.phone = validate_non_empty_string(self.phone, "Phone")
+        self.phone = validate_phone_number(self.phone)
         self.max_loans = validate_positive_int(self.max_loans, "Max Loans")
         self.role = self.role.upper() if self.role else "MEMBER"
 

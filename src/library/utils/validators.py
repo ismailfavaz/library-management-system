@@ -108,3 +108,27 @@ def validate_non_empty_string(value: str, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"Field '{field_name}' cannot be empty.")
     return value.strip()
+
+
+def validate_phone_number(phone: str) -> str:
+    """Validates and normalizes phone number input.
+
+    Args:
+        phone: Raw phone number string (e.g. '+1 (555) 019-2834').
+
+    Returns:
+        Normalized phone string.
+
+    Raises:
+        ValidationError: If the phone number is invalid.
+    """
+    if not isinstance(phone, str) or not phone.strip():
+        raise ValidationError("Phone number cannot be empty.")
+
+    cleaned = re.sub(r"[\s\-\(\)\.]", "", phone.strip())
+    # Allow leading '+' followed by 7 to 15 digits
+    if not re.match(r"^\+?[0-9]{7,15}$", cleaned):
+        raise ValidationError(f"Invalid phone number format: '{phone}'. Must contain 7 to 15 digits.")
+
+    return cleaned
+
