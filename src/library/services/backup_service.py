@@ -83,11 +83,13 @@ class BackupService:
 
     def backup_to_json(self, file_path: Path | str) -> Path:
         """Exports entire database contents (Books, Users, Loans) into a structured JSON file."""
+        from datetime import datetime, timezone
         dest = Path(file_path)
         dest.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
             "version": "1.0",
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "books": [b.to_dict() for b in self.book_repo.get_all()],
             "users": [u.to_dict() for u in self.user_repo.get_all()],
             "loans": [l.to_dict() for l in self.loan_repo.get_all()],
