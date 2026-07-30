@@ -64,6 +64,27 @@ class InvalidEmailError(ValidationError):
         self.email = email
 
 
+class DuplicateIsbnError(ValidationError):
+    """Raised when attempting to add or update a book with an ISBN that already exists."""
+
+    def __init__(self, isbn: str, existing_title: str | None = None) -> None:
+        msg = f"A book with ISBN '{isbn}' already exists"
+        if existing_title:
+            msg += f": '{existing_title}'"
+        super().__init__(msg + ".")
+        self.isbn = isbn
+        self.existing_title = existing_title
+
+
+class DuplicateEmailError(ValidationError):
+    """Raised when attempting to register or update a user with an email that is already registered."""
+
+    def __init__(self, email: str) -> None:
+        super().__init__(f"A user with email '{email}' is already registered.")
+        self.email = email
+
+
+
 # --- Borrowing / Business Logic Exceptions ---
 
 class BorrowError(LibraryError):

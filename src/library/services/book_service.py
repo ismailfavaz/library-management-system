@@ -2,7 +2,7 @@
 Service layer orchestrating Book entity business rules and repository access.
 """
 
-from src.library.exceptions import BookNotFoundError, ValidationError
+from src.library.exceptions import BookNotFoundError, DuplicateIsbnError, ValidationError
 from src.library.models.entities import Book
 from src.library.storage.book_repository import BookRepository
 from src.library.utils.logger import get_logger
@@ -28,12 +28,12 @@ class BookService:
         """Creates and stores a new Book.
 
         Raises:
-            ValidationError: If book with identical ISBN already exists.
+            DuplicateIsbnError: If book with identical ISBN already exists.
         """
         # Check for existing ISBN
         existing = self.book_repo.get_by_isbn(isbn)
         if existing:
-            raise ValidationError(f"A book with ISBN '{isbn}' already exists: '{existing.title}'.")
+            raise DuplicateIsbnError(isbn, existing.title)
 
         book = Book(
             title=title,

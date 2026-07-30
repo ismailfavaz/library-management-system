@@ -2,7 +2,7 @@
 Service layer orchestrating User entity business rules and repository access.
 """
 
-from src.library.exceptions import UserNotFoundError, ValidationError
+from src.library.exceptions import DuplicateEmailError, UserNotFoundError, ValidationError
 from src.library.models.entities import User
 from src.library.storage.user_repository import UserRepository
 from src.library.utils.logger import get_logger
@@ -29,11 +29,11 @@ class UserService:
         """Registers a new user with optional password hashing and role.
 
         Raises:
-            ValidationError: If email address is already registered.
+            DuplicateEmailError: If email address is already registered.
         """
         existing = self.user_repo.get_by_email(email)
         if existing:
-            raise ValidationError(f"A user with email '{email}' is already registered.")
+            raise DuplicateEmailError(email)
 
         pwd_hash = hash_password(password) if password else None
 
@@ -93,7 +93,7 @@ class UserService:
         if email is not None and email.strip().lower() != user.email:
             existing = self.user_repo.get_by_email(email)
             if existing:
-                raise ValidationError(f"Email '{email}' is already in use by another member.")
+                raise DuplicateEmailError(email)
             user.email = email
 
         if name is not None:
