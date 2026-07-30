@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     phone TEXT NOT NULL,
+    role TEXT DEFAULT 'MEMBER',
+    password_hash TEXT DEFAULT NULL,
     max_loans INTEGER DEFAULT 5 CHECK (max_loans > 0),
     member_since TEXT NOT NULL
 );

@@ -80,6 +80,8 @@ class User:
     name: str
     email: str
     phone: str
+    role: str = "MEMBER"
+    password_hash: str | None = None
     max_loans: int = 5
     id: int | None = None
     member_since: str = field(
@@ -92,6 +94,7 @@ class User:
         self.email = validate_email(self.email)
         self.phone = validate_non_empty_string(self.phone, "Phone")
         self.max_loans = validate_positive_int(self.max_loans, "Max Loans")
+        self.role = self.role.upper() if self.role else "MEMBER"
 
     def to_dict(self) -> dict[str, Any]:
         """Converts object to dictionary format."""
@@ -100,6 +103,8 @@ class User:
             "name": self.name,
             "email": self.email,
             "phone": self.phone,
+            "role": self.role,
+            "password_hash": self.password_hash,
             "max_loans": self.max_loans,
             "member_since": self.member_since,
         }
@@ -112,6 +117,8 @@ class User:
             name=data["name"],
             email=data["email"],
             phone=data["phone"],
+            role=data.get("role", "MEMBER"),
+            password_hash=data.get("password_hash"),
             max_loans=data.get("max_loans", 5),
             member_since=data.get(
                 "member_since", datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")

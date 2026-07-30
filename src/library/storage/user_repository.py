@@ -26,8 +26,8 @@ class UserRepository:
             User instance populated with assigned database primary key ID.
         """
         sql = """
-            INSERT INTO users (name, email, phone, max_loans, member_since)
-            VALUES (?, ?, ?, ?, ?);
+            INSERT INTO users (name, email, phone, role, password_hash, max_loans, member_since)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
         """
         with self.db_manager.session() as conn:
             cursor = conn.cursor()
@@ -37,6 +37,8 @@ class UserRepository:
                     user.name,
                     user.email,
                     user.phone,
+                    user.role,
+                    user.password_hash,
                     user.max_loans,
                     user.member_since,
                 ),
@@ -83,7 +85,7 @@ class UserRepository:
 
         sql = """
             UPDATE users
-            SET name = ?, email = ?, phone = ?, max_loans = ?
+            SET name = ?, email = ?, phone = ?, role = ?, password_hash = ?, max_loans = ?
             WHERE id = ?;
         """
         with self.db_manager.session() as conn:
@@ -94,6 +96,8 @@ class UserRepository:
                     user.name,
                     user.email,
                     user.phone,
+                    user.role,
+                    user.password_hash,
                     user.max_loans,
                     user.id,
                 ),

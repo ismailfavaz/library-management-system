@@ -6,6 +6,7 @@ from src.library.exceptions import UserNotFoundError, ValidationError
 from src.library.models.entities import User
 from src.library.storage.user_repository import UserRepository
 from src.library.utils.logger import get_logger
+from src.library.utils.security import hash_password, verify_password
 
 logger = get_logger(__name__)
 
@@ -21,9 +22,11 @@ class UserService:
         name: str,
         email: str,
         phone: str,
+        password: str | None = None,
+        role: str = "MEMBER",
         max_loans: int = 5,
     ) -> User:
-        """Registers a new user.
+        """Registers a new user with optional password hashing and role.
 
         Raises:
             ValidationError: If email address is already registered.
@@ -32,13 +35,34 @@ class UserService:
         if existing:
             raise ValidationError(f"A user with email '{email}' is already registered.")
 
+        pwd_hash = hash_password(password) if password else None
+
         user = User(
             name=name,
             email=email,
             phone=phone,
+            role=role,
+            password_hash=pwd_hash,
             max_loans=max_loans,
         )
         return self.user_repo.add(user)
+
+    def authenticate_user(self, email: str, password: str) -> User | None:
+        """Authenticates user by email and password.
+
+        Returns:
+            User instance if credentials are valid, None otherwise.
+        """
+        user = self.user_repo.get_by_email(email)
+        if not user or not user.password_hash:
+            return None
+
+        if verify_password(password, user.password_hash):
+            logger.info(f"User '{user.email}' authenticated successfully.")
+            return user
+
+        logger.warning(f"Failed authentication attempt for email '{email}'.")
+        return None
 
     def get_user_by_id(self, user_id: int) -> User:
         """Retrieves user by ID.
