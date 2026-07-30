@@ -1,0 +1,4 @@
+# Core dependencies (Standard library handles sqlite3, json, csv, logging, datetime)
+# Testing & Quality Assurance
+pytest>=8.0.0
+pytest-cov>=4.1.0
