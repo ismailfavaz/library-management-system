@@ -128,3 +128,15 @@ def test_search_books(repo: BookRepository) -> None:
     results_arch = repo.search("Architecture")
     assert len(results_arch) == 1
     assert results_arch[0].title == "Design Patterns"
+
+
+def test_advanced_search_books(repo: BookRepository) -> None:
+    """Verify search filtering by genre and stock availability."""
+    repo.add(Book("Book A", "Author A", "0-201-63361-1", 2000, 1, 0, genre="Sci-Fi"))
+    repo.add(Book("Book B", "Author B", "0-201-63361-2", 2005, 3, 3, genre="Sci-Fi"))
+    repo.add(Book("Book C", "Author C", "0-201-63361-3", 2010, 2, 2, genre="History"))
+
+    scifi_available = repo.search_books(genre="Sci-Fi", available_only=True)
+    assert len(scifi_available) == 1
+    assert scifi_available[0].title == "Book B"
+

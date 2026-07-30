@@ -126,14 +126,45 @@ class BookRepository:
 
     def search(self, query: str) -> list[Book]:
         """Searches books matching title, author, ISBN, or genre (case-insensitive)."""
-        pattern = f"%{query.strip()}%"
-        sql = """
-            SELECT * FROM books
-            WHERE title LIKE ? OR author LIKE ? OR isbn LIKE ? OR genre LIKE ?
-            ORDER BY title ASC;
+        return self.search_books(query=query)
+
+    def search_books(
+        self,
+        query: str = "",
+        genre: str | None = None,
+        available_only: bool = False,
+    ) -> list[Book]:
+        """Performs advanced search on books with optional genre filtering and availability constraints.
+
+        Args:
+            query: Keyword to search across title, author, or ISBN.
+            genre: Optional genre filter.
+            available_only: If True, only returns books with available_copies > 0.
+
+        Returns:
+            List of matching Book objects.
         """
+        conditions = []
+        params: list[str | int] = []
+
+        if query and query.strip():
+            pattern = f"%{query.strip()}%"
+            conditions.append("(title LIKE ? OR author LIKE ? OR isbn LIKE ?)")
+            params.extend([pattern, pattern, pattern])
+
+        if genre and genre.strip():
+            conditions.append("genre LIKE ?")
+            params.append(f"%{genre.strip()}%")
+
+        if available_only:
+            conditions.append("available_copies > 0")
+
+        where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
+        sql = f"SELECT * FROM books{where_clause} ORDER BY title ASC;"
+
         with self.db_manager.session() as conn:
             cursor = conn.cursor()
-            cursor.execute(sql, (pattern, pattern, pattern, pattern))
+            cursor.execute(sql, params)
             rows = cursor.fetchall()
             return [Book.from_dict(dict(r)) for r in rows]
+
