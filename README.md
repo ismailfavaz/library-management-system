@@ -6,10 +6,10 @@ A production-quality Python 3.12+ command-line application built with modular ar
 
 ## Key Features
 
-- **Book Management (CRUD & Search):** Full title cataloguing, available copy tracking, unique ISBN validation (ISBN-10 & ISBN-13 checksums), genre filtering, and case-insensitive keyword search.
-- **User Management (CRUD & Search):** Member registration, RFC 5322 email validation, borrowing limits (`max_loans`), and member search.
-- **Circulation & Due Dates:** Borrowing and return workflows, loan duration tracking, automatic available stock adjustment, and active loan tracking.
-- **Fine Calculation Engine:** Configurable fine strategy (`daily_rate`, `grace_period_days`, `max_fine_cap`) calculating overdue fines upon book returns.
+- **Book Management (CRUD & Search):** Full title cataloguing, available copy tracking, unique ISBN validation (ISBN-10 & ISBN-13 checksums), genre filtering, limit/offset pagination, and case-insensitive keyword search.
+- **User Management (CRUD & Search):** Member registration, RFC 5322 email validation, phone number normalization/validation, account active status toggles, borrowing limits (`max_loans`), and member search.
+- **Circulation & Due Dates:** Borrowing and return workflows, active loan renewals, loan duration tracking, automatic available stock adjustment, and active loan tracking.
+- **Fine Calculation Engine:** Configurable fine policy (`daily_rate`, `grace_period_days`, `max_fine_cap`) with dynamic runtime policy update capabilities.
 - **Reports & Statistics:** Summary metrics dashboard (total titles, physical copies, active/overdue loans, total fines accrued, genre breakdowns, and top borrowed books).
 - **Data Export & Backup:** Export catalog and member data to CSV format, and perform complete database backups/restorations via JSON files.
 - **SQLite Database Layer:** Robust database connection manager with context-managed transactions, foreign key enforcement, automatic rollbacks, and schema migrations.

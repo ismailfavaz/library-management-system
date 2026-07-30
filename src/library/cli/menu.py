@@ -278,6 +278,7 @@ class LibraryCLI:
             print("2. Return Book")
             print("3. View Active Loans")
             print("4. View Overdue Loans & Accrued Fines")
+            print("5. Renew Active Loan")
             print("0. Back to Main Menu")
 
             choice = input("Option: ").strip()
@@ -289,8 +290,26 @@ class LibraryCLI:
                 self._list_active_loans()
             elif choice == "4":
                 self._list_overdue_loans()
+            elif choice == "5":
+                self._renew_loan()
             elif choice == "0":
                 break
+
+    def _renew_loan(self) -> None:
+        print("\n[Renew Active Loan]")
+        try:
+            user_id = int(input("User ID: "))
+            book_id = int(input("Book ID: "))
+            days_in = input("Extension Days [Default 14]: ").strip()
+            extension_days = int(days_in) if days_in else 14
+
+            loan = self.borrow_service.renew_loan(user_id, book_id, extension_days)
+            print(f"\n[+] Success! Loan ID {loan.id} renewed. New due date: {loan.due_date}")
+        except LibraryError as err:
+            print(f"\n[!] Error: {err}")
+        except ValueError as err:
+            print(f"\n[!] Input Error: {err}")
+
 
     def _borrow_book(self) -> None:
         print("\n[Borrow Book]")
