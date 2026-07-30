@@ -2,6 +2,7 @@
 Reporting and statistics generation service.
 """
 
+from pathlib import Path
 from typing import Any
 from src.library.storage.book_repository import BookRepository
 from src.library.storage.loan_repository import LoanRepository
@@ -90,3 +91,48 @@ class ReportService:
                 )
 
         return results
+
+    def export_books_to_csv(self, file_path: str | Path) -> Path:
+        """Exports current book inventory to CSV format.
+
+        Args:
+            file_path: Path where CSV file will be written.
+
+        Returns:
+            Resolved Path object.
+        """
+        import csv
+        books = self.book_repo.get_all()
+        target_path = Path(file_path)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(target_path, mode="w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["ID", "Title", "Author", "ISBN", "Publication Year", "Total Copies", "Available Copies", "Genre"])
+            for b in books:
+                writer.writerow([b.id, b.title, b.author, b.isbn, b.publication_year, b.total_copies, b.available_copies, b.genre])
+
+        return target_path
+
+    def export_loans_to_csv(self, file_path: str | Path) -> Path:
+        """Exports complete borrowing history to CSV format.
+
+        Args:
+            file_path: Path where CSV file will be written.
+
+        Returns:
+            Resolved Path object.
+        """
+        import csv
+        loans = self.loan_repo.get_all()
+        target_path = Path(file_path)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(target_path, mode="w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Loan ID", "Book ID", "User ID", "Borrow Date", "Due Date", "Return Date", "Fine Amount"])
+            for l in loans:
+                writer.writerow([l.id, l.book_id, l.user_id, l.borrow_date, l.due_date, l.return_date or "N/A", f"{l.fine_amount:.2f}"])
+
+        return target_path
+
