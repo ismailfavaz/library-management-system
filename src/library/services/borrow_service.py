@@ -146,6 +146,41 @@ class BorrowService:
         logger.info(f"Book ID {book_id} returned by User ID {user_id}. Fine accrued: ${fine:.2f}")
         return loan, fine
 
+    def renew_loan(
+        self,
+        user_id: int,
+        book_id: int,
+        extension_days: int = 14,
+    ) -> Loan:
+        """Extends the due date of an active loan by extension_days.
+
+        Args:
+            user_id: ID of borrowing user.
+            book_id: ID of book being renewed.
+            extension_days: Number of days to extend due date. Defaults to 14.
+
+        Returns:
+            Updated Loan entity.
+
+        Raises:
+            BookNotBorrowedByUserError: If active loan not found.
+            BorrowError: If loan is currently overdue.
+        """
+        loan = self.loan_repo.get_active_loan_by_book_and_user(book_id, user_id)
+        if not loan:
+            raise BookNotBorrowedByUserError(book_id, user_id)
+
+        if loan.calculate_overdue_days() > 0:
+            raise BorrowError("Overdue loans cannot be renewed. Please return the book and resolve accrued fines.")
+
+        current_due_dt = datetime.strptime(loan.due_date[:10], "%Y-%m-%d")
+        new_due_dt = current_due_dt + timedelta(days=extension_days)
+        loan.due_date = new_due_dt.strftime("%Y-%m-%d")
+
+        self.loan_repo.update(loan)
+        logger.info(f"Loan ID {loan.id} renewed for User ID {user_id}. New due date: {loan.due_date}")
+        return loan
+
     def get_user_loans(self, user_id: int) -> list[Loan]:
         """Retrieves active loans for a specific user."""
         return self.loan_repo.get_active_loans_by_user(user_id)

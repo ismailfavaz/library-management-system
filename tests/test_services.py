@@ -9,6 +9,7 @@ from src.library.exceptions import (
     BookNotAvailableError,
     BookNotBorrowedByUserError,
     BookNotFoundError,
+    BorrowError,
     MaxLoansExceededError,
     ValidationError,
 )
@@ -118,3 +119,18 @@ def test_report_service_statistics(services: tuple[BookService, UserService, Bor
     assert stats["total_copies"] == 3
     assert stats["total_users"] == 1
     assert stats["genre_distribution"]["Technology"] == 1
+
+
+def test_renew_loan(services: tuple[BookService, UserService, BorrowService, ReportService]) -> None:
+    """Verify active loan renewal updates due date correctly."""
+    book_service, user_service, borrow_service, _ = services
+
+    book = book_service.add_book("Refactoring", "Martin Fowler", "0-201-48567-2", 1999, 2)
+    user = user_service.register_user("Renew User", "renew@test.com", "+15551234567")
+
+    loan = borrow_service.borrow_book(user.id, book.id, loan_days=14)
+    initial_due_date = loan.due_date
+
+    renewed_loan = borrow_service.renew_loan(user.id, book.id, extension_days=7)
+    assert renewed_loan.due_date != initial_due_date
+
