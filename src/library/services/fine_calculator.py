@@ -44,3 +44,28 @@ class FineCalculator:
         total_fine = min(raw_fine, self.policy.max_fine_cap)
 
         return round(total_fine, 2)
+
+    def update_policy(
+        self,
+        daily_rate: float | None = None,
+        grace_period_days: int | None = None,
+        max_fine_cap: float | None = None,
+    ) -> FinePolicy:
+        """Updates fine calculation policy parameters dynamically at runtime.
+
+        Returns:
+            Updated FinePolicy instance.
+        """
+        if daily_rate is not None and daily_rate >= 0:
+            self.policy.daily_rate = daily_rate
+        if grace_period_days is not None and grace_period_days >= 0:
+            self.policy.grace_period_days = grace_period_days
+        if max_fine_cap is not None and max_fine_cap >= 0:
+            self.policy.max_fine_cap = max_fine_cap
+
+        logger.info(
+            f"Fine policy updated: rate=${self.policy.daily_rate:.2f}/day, "
+            f"grace_period={self.policy.grace_period_days}d, cap=${self.policy.max_fine_cap:.2f}"
+        )
+        return self.policy
+
